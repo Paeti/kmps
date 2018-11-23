@@ -1,15 +1,15 @@
 import scala.io.Source
-
+/*
 case class Track(title: String, length: String, rating: Int,
                  features: List[String], writers: List[String])
 case class Album(title: String, date: String, artist: String,
                  tracks: List[Track])
-
+ */
 object SelfFunktional_2 {
-
+/*
   def main(args: Array[String]): Unit = {
     val file_content =
-      Source.fromFile("/home/rambo/git/uni/kmp/alben.xml").mkString.toCharArray.toList
+      Source.fromFile("alben.xml").mkString.toCharArray.toList
     val albenListe = createTokenList(file_content)
     println(albenListe)
     val objectListe = parseFile(albenListe)
@@ -19,7 +19,7 @@ object SelfFunktional_2 {
     println(prodInt(1,3))
     println(fakInt(7))
   }
-
+ */
 
   def createTokenList(fcontent_left: List[Char]): List[String] = fcontent_left match{
     case Nil =>  List[String]()

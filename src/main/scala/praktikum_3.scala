@@ -9,15 +9,22 @@ object SelfFunktional_3 {
 
   def main(args: Array[String]): Unit = {
     val file_content =
-      Source.fromFile("/home/rambo/git/uni/kmp/alben.xml").mkString.toCharArray.toList
+      Source.fromFile("alben.xml").mkString.toCharArray.toList
     val albenListe = createTokenList(file_content)
     val objectListe = parseFile(albenListe)
-    val res1 = map[Album](x => x.copy(title = x.title.toUpperCase()), objectListe)
-   // val res2 = map[Album](x => x.copy(title = x.title.toUpperCase());
-  //    x.tracks = map[Track](x => x.copy(title = x.title.toUpperCase()), x.track), objectListe)
 
-    println(map[Album](albtitUp, objectListe))
-    //println(res1)
+
+    val res1 = map[Album](x => x.copy(title = x.title.toUpperCase()), objectListe)
+
+    val res2 = map[Album](x => {val a = x.copy(title = x.title.toUpperCase());
+      a.copy(tracks = map[Track](x => x.copy(x.title.toUpperCase()), a.tracks))} , objectListe)
+
+    val res3 = poly_map[Album, List[String]](x => poly_map[Track, String](y => y.length,
+      x.tracks), objectListe)
+
+    println(res1)
+    println(res2)
+    println(res3)
   }
 
 
@@ -104,12 +111,15 @@ object SelfFunktional_3 {
   def albUp(input: Album): Album = input.copy(title = input.title.toUpperCase())
 
   def albtitUp(input: Album): Album = {
-    input.copy(title = input.title.toUpperCase())
-    input.copy(tracks = map[Track](x =>x.copy(x.title.toUpperCase()), input.tracks))
+    val a = input.copy(title = input.title.toUpperCase())
+    a.copy(tracks = map[Track](x =>x.copy(x.title.toUpperCase()), a.tracks))
   }
 
-  //map[Album](x => x.copy(title = x.title.toUpperCase());
-    //x.track = map[Track](x => x.copy(title = x.title.toUpperCase()), x.track), objectListe)
+  def poly_map[A, B](func: A => B, input_list: List[A]): List[B] = input_list match{
+    case Nil => List[B]()
+    case x::xs => func(x) :: poly_map[A, B](func, xs)
+  }
+
 
 
 
