@@ -13,6 +13,7 @@ object SelfFunktional_3 {
     val albenListe = createTokenList(file_content)
     val objectListe = parseFile(albenListe)
 
+    //Aufgabe 1
 
     val res1 = map[Album](x => x.copy(title = x.title.toUpperCase()), objectListe)
 
@@ -22,9 +23,32 @@ object SelfFunktional_3 {
     val res3 = poly_map[Album, List[String]](x => poly_map[Track, String](y => y.length,
       x.tracks), objectListe)
 
-    println(res1)
-    println(res2)
-    println(res3)
+    //Aufgabe 2
+
+    val res4 =
+      poly_map[Album, List[Track]](x => filter[Track](y => y.rating > 4, x.tracks),
+                                   objectListe)
+    val res5 = poly_map[Album, List[String]](x => poly_map[Track,
+                String](y => y.title,
+                filter[Track](z => filter[String](a => a == "Rod Temperton", z.writers)
+                != List[String](), x.tracks)), objectListe)
+
+    //Aufgabe 3
+
+    val test = List('a', 'b', 'c', 'D', 'e', 'f', 'G', 'H', 'i', 'J')
+
+    println(partition[Char](x => x.isUpper, test))
+    //println(res5)
+
+    //val input_list = List(1, 2, 3, 4, 4, 5, 5, 6, 7)
+
+    //println(filter[Int](x => x%2 == 0, input_list))
+
+
+    //println(res1)
+    //println(res2)
+    //println(res3)
+    //println(res4)
   }
 
 
@@ -120,7 +144,21 @@ object SelfFunktional_3 {
     case x::xs => func(x) :: poly_map[A, B](func, xs)
   }
 
+  def filter[A](condition: A => Boolean, input_list: List[A]): List[A] = input_list match{
+    case Nil => List[A]()
+    case x::xs => condition(x) match{
+      case true => x :: filter[A](condition, xs)
+      case false => filter[A](condition, xs)
+    }
+  }
 
-
+  def partition[A](condition: A => Boolean, input_list: List[A]): List[List[A]]
+    = input_list match{
+      case Nil => List[List[A]]()
+      case x::xs => condition(x) match{
+        case true => List[A]() :: partition[A](condition, xs)//neue List[A] erzeugen
+        case false =>  //zu head von list of list dazu    (list..x)::partition
+      }
+  }
 
   }
