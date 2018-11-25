@@ -39,13 +39,15 @@ object SelfFunktional_3 {
       poly_map[Album, List[List[String]]](x => partition[String](y => y == "Thriller",
             poly_map[Track, String](z => z.title, x.tracks)), objectListe)
 
-    val res7 = filter[String](x => x.isEmpty != true,
+    val res7 = filter[String](x => x.isEmpty == false,
                               poly_map[List[Char], String](y => y.mkString,
-                              partition[Char](z => z == '<' | z == '>', file_content)))
-  //create tokenlist, erst partition (safe), dann die char listen verbinden zu string und
-      //dann die leeren strings rausfiltern
+                              partition[Char](z => z == '<' | z == '>',
+                              filter[Char](a => a != '\n' & a != '\r' & a != '\t',
+                                                           file_content))))
 
-    println(res7)
+    //Aufgabe 4
+
+
 
     //println(res1)
     //println(res2)
@@ -53,6 +55,7 @@ object SelfFunktional_3 {
     //println(res4)
     //println(res5)
     //println(res6)
+    //println(res7)
   }
 
 
