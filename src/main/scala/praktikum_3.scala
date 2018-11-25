@@ -156,8 +156,8 @@ object SelfFunktional_3 {
     = input_list match{
       case Nil => List[List[A]]()
       case x::xs => condition(x) match{
-        case true => List[A]() :: partition[A](condition, xs)//neue List[A] erzeugen
-        case false =>  //zu head von list of list dazu    (list..x)::partition
+        case true => List[A]() :: partition[A](condition, xs)
+        case false =>  val y = partition[A](condition, xs); (List[A](x) ::: y.head)::y.tail
       }
   }
 
