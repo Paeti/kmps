@@ -35,20 +35,24 @@ object SelfFunktional_3 {
 
     //Aufgabe 3
 
-    val test = List('a', 'b', 'c', 'D', 'e', 'f', 'G', 'H', 'i', 'J')
+    val res6 =
+      poly_map[Album, List[List[String]]](x => partition[String](y => y == "Thriller",
+            poly_map[Track, String](z => z.title, x.tracks)), objectListe)
 
-    println(partition[Char](x => x.isUpper, test))
-    //println(res5)
+    val res7 = filter[String](x => x.isEmpty != true,
+                              poly_map[List[Char], String](y => y.mkString,
+                              partition[Char](z => z == '<' | z == '>', file_content)))
+  //create tokenlist, erst partition (safe), dann die char listen verbinden zu string und
+      //dann die leeren strings rausfiltern
 
-    //val input_list = List(1, 2, 3, 4, 4, 5, 5, 6, 7)
-
-    //println(filter[Int](x => x%2 == 0, input_list))
-
+    println(res7)
 
     //println(res1)
     //println(res2)
     //println(res3)
     //println(res4)
+    //println(res5)
+    //println(res6)
   }
 
 
