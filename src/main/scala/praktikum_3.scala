@@ -47,7 +47,9 @@ object SelfFunktional_3 {
 
     //Aufgabe 4
 
+    val test1 = templateMethod(x => x*x, (a, b) => a + b, 1, 3)
 
+    println(test1)
 
     //println(res1)
     //println(res2)
@@ -166,6 +168,9 @@ object SelfFunktional_3 {
         case true => List[A]() :: partition[A](condition, xs)
         case false =>  val y = partition[A](condition, xs); (List[A](x) ::: y.head)::y.tail
       }
-  }
+    }
+
+  def templateMethod(func: Int => Int, conc: (Int, Int) => Int, a: Int, b: Int): Int =
+    if (a > b) 0 else conc(func(a), templateMethod(func, conc, a + 1, b))
 
   }
