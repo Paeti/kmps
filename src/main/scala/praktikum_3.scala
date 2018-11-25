@@ -154,7 +154,7 @@ object SelfFunktional_3 {
 
   def partition[A](condition: A => Boolean, input_list: List[A]): List[List[A]]
     = input_list match{
-      case Nil => List[List[A]]()
+      case Nil => List[A]() :: List[List[A]]()
       case x::xs => condition(x) match{
         case true => List[A]() :: partition[A](condition, xs)
         case false =>  val y = partition[A](condition, xs); (List[A](x) ::: y.head)::y.tail
