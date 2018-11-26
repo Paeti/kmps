@@ -1,25 +1,9 @@
 import scala.io.Source
-/*
-case class Track(title: String, length: String, rating: Int,
-                 features: List[String], writers: List[String])
-case class Album(title: String, date: String, artist: String,
-                 tracks: List[Track])
- */
-object SelfFunktional_2 {
-/*
-  def main(args: Array[String]): Unit = {
-    val file_content =
-      Source.fromFile("alben.xml").mkString.toCharArray.toList
-    val albenListe = createTokenList(file_content)
-    println(albenListe)
-    val objectListe = parseFile(albenListe)
-    println(objectListe)
-    println(prod(x=>x, 1, 2))
-    println(prodCurry(x=>x)(1,2))
-    println(prodInt(1,3))
-    println(fakInt(7))
-  }
- */
+import fups_prak.classes._
+
+package fups_prak {
+
+object prak_2 {
 
   def createTokenList(fcontent_left: List[Char]): List[String] = fcontent_left match{
     case Nil =>  List[String]()
@@ -114,4 +98,5 @@ object SelfFunktional_2 {
 def sumInt = sumCurry(x=>x)
 def sumSquare = sumCurry(x=>x*x)
 
+}
 }
