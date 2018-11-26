@@ -26,7 +26,7 @@ object SelfFunktional_3 {
     //Aufgabe 2
 
     val res4 =
-      poly_map[Album, List[Track]](x => filter[Track](y => y.rating > 4, x.tracks),
+      poly_map[Album, List[Track]](x => filter[Track](y => y.rating >= 4, x.tracks),
                                    objectListe)
     val res5 = poly_map[Album, List[String]](x => poly_map[Track,
                 String](y => y.title,
@@ -47,9 +47,9 @@ object SelfFunktional_3 {
 
     //Aufgabe 4
 
-    val test1 = templateMethod(x => x*x, (a, b) => a + b, 1, 3)
+    val res8 = templateMethod(x => x*x, (a, b) => a + b, 0, 1, 3)
 
-    println(test1)
+    val res9 = foldr[Int]((x, y) => x*y)(1)(map[Int](x => x*x, range(1,3)))
 
     //println(res1)
     //println(res2)
@@ -58,6 +58,8 @@ object SelfFunktional_3 {
     //println(res5)
     //println(res6)
     //println(res7)
+    //println(res8)
+    println(res9)
   }
 
 
@@ -141,13 +143,6 @@ object SelfFunktional_3 {
     case x::xs => func(x) :: map[A](func, xs)
   }
 
-  def albUp(input: Album): Album = input.copy(title = input.title.toUpperCase())
-
-  def albtitUp(input: Album): Album = {
-    val a = input.copy(title = input.title.toUpperCase())
-    a.copy(tracks = map[Track](x =>x.copy(x.title.toUpperCase()), a.tracks))
-  }
-
   def poly_map[A, B](func: A => B, input_list: List[A]): List[B] = input_list match{
     case Nil => List[B]()
     case x::xs => func(x) :: poly_map[A, B](func, xs)
@@ -170,7 +165,16 @@ object SelfFunktional_3 {
       }
     }
 
-  def templateMethod(func: Int => Int, conc: (Int, Int) => Int, a: Int, b: Int): Int =
-    if (a > b) 0 else conc(func(a), templateMethod(func, conc, a + 1, b))
+  def templateMethod(func: Int => Int, conc: (Int, Int) => Int,
+                     neutr_elem: Int, a: Int, b: Int): Int =
+    if (a > b) neutr_elem else conc(func(a), templateMethod(func, conc, neutr_elem, a + 1, b))
+
+  def foldr[A](op: (A, A) => A)(neutr_elem: A)(input_list: List[A]): A = input_list match{
+    case Nil => neutr_elem
+    case x::xs => op(x, foldr(op)(neutr_elem)(xs))
+  }
+
+  def range(a: Int, b: Int): List[Int] =
+    if(a == b) List(b) else a :: range(a + 1, b)
 
   }
