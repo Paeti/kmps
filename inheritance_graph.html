@@ -1,0 +1,211 @@
+<html>
+<head>
+    <script type="text/javascript" src="./node_modules/vis/dist/vis.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+    <link href="./node_modules/vis/dist/vis.css" rel="stylesheet" type="text/css" />
+
+    <style type="text/css">
+        #mynetwork {
+            width: 1700px;
+            height: 700px;
+            border: 1px solid lightgray;
+        }
+    </style>
+</head>
+<body>
+<div id="mynetwork"></div>
+
+<script type="text/javascript">
+
+function Rectangle( length, width ) {
+    this.length = length;
+    this.width = width;
+}
+
+Rectangle.prototype.getArea = function() {
+    return this.length * this.width;
+}
+
+Rectangle.prototype.toString = function() {
+    return "[Rectangle " + this.length + "x" +this.width + "]";
+}
+
+var rect = new Rectangle( 5,10 );
+
+function Line( length ) {
+    this.length = length;
+}
+
+Line.prototype.toString = function() {
+    return "[Rectangle " + this.length + "x" +this.width + "]";
+}
+
+var line = new Line( 100 );
+
+var line2 = new Line( 200 );
+
+var line3 = new Line( 300 );
+
+function Dot( x, y ) {
+    this.x = x;
+    this.y = y;
+}
+
+Dot.prototype.toString = function() {
+    return "[Rectangle " + this.length + "x" +this.width + "]";
+}
+
+var dot = new Dot( 1, 2 );
+
+function Square( size ) {
+    Rectangle.call( this, size, size );
+}
+
+Square.prototype = new Rectangle();
+Square.prototype.constructor = Square;
+
+
+Square.prototype.toString =function() {
+    return "[Square " + this.length + "x" + this.width +"]";
+
+}
+
+var square = new Square( 6 );
+
+var square2 = new Square( 10 );
+
+function Paralelogram( length, width, degree ) {
+    this.degree = degree;
+    Rectangle.call( this, length, width );
+}
+
+Paralelogram.prototype = new Rectangle();
+Paralelogram.prototype.constructor = Paralelogram;;
+
+
+Paralelogram.prototype.toString =function() {
+    return "[Square " + this.length + "x" + this.width +"]";
+
+}
+
+var para = new Paralelogram( 6, 10, 180 );
+
+
+function Elipse(size, delta){
+    this.delta = delta;
+    Square.call(this, size);
+}
+
+Elipse.prototype = new Square();
+Elipse.prototype.constructor = Elipse;
+
+Elipse.prototype.getArea = function() {
+    return this.length * this.width;
+}
+
+Elipse.prototype.toString = function() {
+    return "[Elipse " + this.length + "x" +this.width + "]";
+}
+
+var elip = new Elipse( 7, 3);
+
+
+var objs = [rect, square, elip, square2, para, line, line2, line3, dot];
+
+function visualisiere_obj(obj, params){
+    if(Object.getPrototypeOf(obj) != null){
+        var params = visualisiere_obj(Object.getPrototypeOf(obj), params);
+    }
+
+    var last_proto_id = params.id;
+    params.id++;
+
+    //properties als nodes eintragen
+    Object.getOwnPropertyNames(obj).map(x => {
+        if(typeof(obj[x]) != "function"){
+            if(obj[x] != null && typeof(obj[x]) != "undefined"){
+                params.data.nodes.add([{id: params.id, label: x + ": " + obj[x], color: 'green'}]);
+            }else{
+                params.data.nodes.add([{id: params.id, label: x, color: 'green'}]);
+            }
+        }else if(x == "constructor"){
+            params.data.nodes.add([{id: params.id, label: x, shape: 'triangle', color: 'grey'}]);
+        }else{
+            params.data.nodes.add([{id: params.id, label: x, color: 'lime'}]);
+        }
+        params.id++;});
+
+    //sich selbst und edge zu prototypen eintragen
+    if(params.data.nodes.get(last_proto_id) != null && params.data.nodes.get(last_proto_id).label == obj.constructor.name){
+        params.data.nodes.add([{id: params.id, label: obj.constructor.name.toLowerCase() + "\r\ninstance", color: 'red'}]);
+    }else{
+        params.data.nodes.add([{id: params.id, label: obj.constructor.name, group: 'prototypen'}]);
+    }
+
+    params.data.edges.add([{from: params.id, to: last_proto_id, arrows: 'to', color: {color: 'black'}}]);
+
+    //edges zu properties eintragen
+    _.range(last_proto_id + 1, params.id).map(x => {
+        if(params.data.nodes.get(x).label == "constructor"){
+            params.data.edges.add([{from: params.id, to: x, arrows: 'to, from', color: {color: 'black'}}]);
+        }else{
+            params.data.edges.add([{from: params.id, to: x, arrows: 'to', color: {color: 'grey'}}]);
+        }});
+
+    return params;
+}
+
+
+
+function visualisiere(obj_list){
+    //alle einzelnen DataSets zu einem zusammenfügen
+    var all_data = obj_list.map(
+        (x, index) =>
+            visualisiere_obj(x, {data: {nodes: new vis.DataSet([]),
+                                        edges: new vis.DataSet([])}, id: index * 100})).reduce(
+                                            ( accumulator, currentValue ) => {
+                                                accumulator.data.nodes.add(currentValue.data.nodes.get());
+                                                accumulator.data.edges.add(currentValue.data.edges.get());
+                                                return accumulator;
+                                                }, {data: {nodes: new vis.DataSet([]),
+                                                           edges: new vis.DataSet([])}, id: 0});
+
+    var prototypen = all_data.data.nodes.get({filter: (item) => item.group == "prototypen"});
+
+    var uniques = _.groupBy(prototypen, (x) => x.label);
+
+    var nodes_to_remove = [];
+
+    //doppelt vorkommende prototype nodes gruppieren
+    //die edges die von prototypen auf die redundanten prototypen nodes verweisen auf den richtigen node umbiegen
+    //die edges, die von den properties der redundanten objekte auf sie zeigen, entfernen
+    //redundante prototypen nodes und deren property nodes in das nodes_to_remove array eintragen
+    Object.values(uniques).map(x =>
+                               x.map((y, index, array) =>
+                      {if(index != 0){
+                          all_data.data.edges.get(({filter: elem =>
+                                                    elem.to == y.id})).map(z => {
+                                                        z.to = array[0].id;
+                                                        all_data.data.edges.update(z);});
+                          all_data.data.edges.remove(all_data.data.edges.get({filter: elem => elem.from == y.id || elem.to == y.id}));
+                          nodes_to_remove.push.apply(nodes_to_remove, _.range(y.id - y.id % 100, y.id + 1));
+                      }}));
+
+    all_data.data.nodes.remove(nodes_to_remove);
+
+    return all_data;
+}
+
+
+
+var res_all = visualisiere(objs);
+
+var container = document.getElementById('mynetwork');
+
+var options = {};
+
+var network = new vis.Network(container, res_all.data, options);
+
+</script>
+</body>
+</html>
